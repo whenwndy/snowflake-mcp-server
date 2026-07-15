@@ -260,6 +260,27 @@ def get_catering_summary(
 
 
 # ---------------------------------------------------------------------------
+# Daily Sales
+# ---------------------------------------------------------------------------
+
+@mcp.tool()
+def get_daily_sales(
+    date: Optional[str] = Field(default=None, description="Filter by date, e.g. 2026-07-14. Use yesterday's date for yesterday's sales."),
+    location_id: Optional[str] = Field(default=None, description="Filter by location ID, e.g. L001"),
+    day_of_week: Optional[str] = Field(default=None, description="Filter by day of week (partial match), e.g. Tuesday"),
+) -> list[dict]:
+    """Return daily sales records including gross sales, net sales, transaction count, and avg ticket per location per day. Yesterday is 2026-07-14."""
+    results = _db["daily_sales"]
+    if date:
+        results = [r for r in results if r["date"] == date]
+    if location_id:
+        results = [r for r in results if r["location_id"].upper() == location_id.upper()]
+    if day_of_week:
+        results = [r for r in results if _match(r, "day_of_week", day_of_week)]
+    return results
+
+
+# ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
 
